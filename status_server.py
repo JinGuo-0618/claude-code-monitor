@@ -13,7 +13,7 @@ class Handler(BaseHTTPRequestHandler):
         status_map = {
             "/api/green":   ("idle",      ""),
             "/api/working": ("working",   ""),
-            "/api/waiting": ("idle",      "等待用户操作"),
+            "/api/waiting": ("waiting",   "等待确认"),
             "/api/done":    ("idle",      ""),
         }
         state, extra = status_map.get(self.path, ("offline", ""))

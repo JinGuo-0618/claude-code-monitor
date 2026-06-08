@@ -1,6 +1,5 @@
 import tkinter as tk
 import json
-import os
 import sys
 import subprocess
 import threading
@@ -9,7 +8,6 @@ from pathlib import Path
 from datetime import datetime
 
 STATUS_FILE = Path.home() / ".claude" / "status.json"
-LOG_FILE = Path.home() / ".claude" / "status_log.jsonl"
 
 
 # ── Tiny hook server ────────────────────────────────────────────────
@@ -65,6 +63,9 @@ class StatusMonitor:
         sw = self.root.winfo_screenwidth()
         self.root.geometry(f"200x68+{sw - 210}+10")
 
+        self._font_mono = ("Consolas",) if sys.platform == "win32" else ("monospace",)
+        self._font_cjk = ("Microsoft YaHei",) if sys.platform == "win32" else ("",)
+
         self.colors = {
             "idle": "#4CAF50",
             "thinking": "#FF9800",
@@ -104,7 +105,6 @@ class StatusMonitor:
 
         self.current_status = "offline"
         self.current_tool = ""
-        self.activity_log = []
         self.pulse_phase = 0
 
         self.poll_status()
@@ -125,12 +125,12 @@ class StatusMonitor:
 
         self.title_lbl = tk.Label(
             header, text="Claude Code Monitor", fg="#888888",
-            bg="#202020", font=("Consolas", 7))
+            bg="#202020", font=(*self._font_mono, 7))
         self.title_lbl.pack(side=tk.LEFT, padx=6)
 
         self.time_lbl = tk.Label(
             header, text="", fg="#666666", bg="#202020",
-            font=("Consolas", 7))
+            font=(*self._font_mono, 7))
         self.time_lbl.pack(side=tk.RIGHT, padx=6)
 
         # Body
@@ -149,13 +149,13 @@ class StatusMonitor:
 
         self.status_lbl = tk.Label(
             dot_row, text=self.labels["offline"], fg="#CCCCCC",
-            bg="#161616", font=("Microsoft YaHei", 10, "bold"))
+            bg="#161616", font=(*self._font_cjk, 10, "bold"))
         self.status_lbl.pack(side=tk.LEFT)
 
         # Tool detail row
         self.detail_lbl = tk.Label(
             body, text="", fg="#777777", bg="#161616",
-            font=("Consolas", 8), anchor=tk.W)
+            font=(*self._font_mono, 8), anchor=tk.W)
         self.detail_lbl.pack(fill=tk.X, pady=(1, 0))
 
     # ── Window dragging ──────────────────────────────────────────────
@@ -170,7 +170,7 @@ class StatusMonitor:
         self.menu = tk.Menu(self.root, tearoff=0,
                             bg="#252525", fg="#CCCCCC",
                             activebackground="#3A3A3A", activeforeground="#FFFFFF",
-                            font=("Microsoft YaHei", 9))
+                            font=(*self._font_cjk, 9))
         self.menu.add_command(label="退出监控", command=self.root.quit)
 
     def _start_drag(self, event):
