@@ -118,57 +118,23 @@ python status_monitor.py
 
 ## 配置 Claude Code 钩子
 
-要让 Claude Code 在状态变化时通知监控器，需要在 `~/.claude/settings.json` 中配置 hooks。
+要让 Claude Code 在状态变化时通知监控器，需要将 hooks 配置合并到 `~/.claude/settings.json` 中。
 
-### 最小配置
+使用 **Claude Code 原生的 `http` 类型 hook**，无需 curl、无需 PowerShell，纯配置即可，跨平台通用。
 
-将以下内容合并到你的 `~/.claude/settings.json` 中：
+完整配置直接复制 [`example-hooks.json`](example-hooks.json) 中的内容，合并到你的 `~/.claude/settings.json` → `hooks` 字段下即可。关键事件：
 
-```json
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "command": "curl -s -X POST http://127.0.0.1:17323/api/working -H \"Content-Type: application/json\" -d \"{\\\"tool_name\\\":\\\"$CLAUDE_TOOL_NAME\\\",\\\"tool_input\\\":\\\"$CLAUDE_TOOL_INPUT\\\"}\""
-      }
-    ],
-    "PostToolUse": [
-      {
-        "command": "curl -s -X POST http://127.0.0.1:17323/api/done"
-      }
-    ],
-    "Stop": [
-      {
-        "command": "curl -s -X POST http://127.0.0.1:17323/api/green"
-      }
-    ]
-  }
-}
-```
+| 事件 | 触发时机 | 通知状态 |
+|------|---------|---------|
+| `SessionStart` | 会话启动 | 🟢 就绪 |
+| `UserPromptSubmit` | 用户发送消息 | 🔵 工作中 |
+| `PreToolUse` | 工具开始执行 | 🔵 工作中 |
+| `PostToolUse` | 工具执行完毕 | 🔵 工作中 |
+| `PermissionRequest` | 请求用户权限 | 🔴 等待确认 |
+| `Stop` | Claude 停止响应 | 🟢 就绪 |
+| `SessionEnd` | 会话结束 | 🟢 就绪 |
 
-完整示例参见 [`example-hooks.json`](example-hooks.json)。
-
-### Windows 用户注意
-
-Windows 上可能没有 `curl` 命令，可使用 PowerShell 替代：
-
-```json
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "command": "powershell -Command \"Invoke-WebRequest -Uri 'http://127.0.0.1:17323/api/working' -Method POST -ContentType 'application/json' -Body (ConvertTo-Json @{tool_name=$env:CLAUDE_TOOL_NAME;tool_input=$env:CLAUDE_TOOL_INPUT}) | Out-Null\""
-      }
-    ]
-  }
-}
-```
-
-或在 Git Bash / WSL 中使用 curl。
-
-### macOS 用户注意
-
-macOS 上需要给 `curl` 加 `-s` 参数抑制进度输出，避免干扰 Claude Code 的 hook 系统。
+> **为什么 `PostToolUse` 也设 working 而不是直接 idle？** 因为 Claude 可能连续调用多个工具，每次 PostToolUse 后往往紧接下一个 PreToolUse，频繁切换反而抖动。`Stop` 事件才是 Claude 真正"说完话"的信号，由它来恢复就绪最准确。
 
 ---
 

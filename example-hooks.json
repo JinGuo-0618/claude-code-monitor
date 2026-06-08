@@ -1,39 +1,103 @@
 {
-  "_comment": "将此配置合并到你的 ~/.claude/settings.json 的 hooks 字段中。Merge this into your ~/.claude/settings.json under the 'hooks' key.",
+  "_comment": "将此配置合并到 ~/.claude/settings.json 的 hooks 字段中。使用 Claude Code 原生 http hook 类型，无需依赖 curl。",
 
+  "SessionStart": [
+    {
+      "hooks": [
+        {
+          "type": "http",
+          "url": "http://127.0.0.1:17323/api/green",
+          "timeout": 2
+        }
+      ],
+      "matcher": ""
+    }
+  ],
+  "UserPromptSubmit": [
+    {
+      "hooks": [
+        {
+          "type": "http",
+          "url": "http://127.0.0.1:17323/api/working",
+          "timeout": 2
+        }
+      ],
+      "matcher": ""
+    }
+  ],
   "PreToolUse": [
     {
-      "description": "通知监控器：工具开始执行",
-      "command": "curl -s -X POST http://127.0.0.1:17323/api/working -H \"Content-Type: application/json\" -d \"{\\\"tool_name\\\":\\\"$CLAUDE_TOOL_NAME\\\",\\\"tool_input\\\":\\\"$CLAUDE_TOOL_INPUT\\\"}\""
+      "hooks": [
+        {
+          "type": "http",
+          "url": "http://127.0.0.1:17323/api/working",
+          "timeout": 2
+        }
+      ],
+      "matcher": ""
     }
   ],
   "PostToolUse": [
     {
-      "description": "通知监控器：工具执行完毕,恢复就绪",
-      "command": "curl -s -X POST http://127.0.0.1:17323/api/done"
+      "hooks": [
+        {
+          "type": "http",
+          "url": "http://127.0.0.1:17323/api/working",
+          "timeout": 2
+        }
+      ],
+      "matcher": ""
     }
   ],
-  "Notification": [
+  "PermissionRequest": [
     {
-      "description": "仅在权限请求时通知监控器：等待用户确认",
-      "command": "if [ \"$CLAUDE_NOTIFICATION_TYPE\" = \"permission\" ]; then curl -s -X POST http://127.0.0.1:17323/api/waiting; fi"
+      "hooks": [
+        {
+          "type": "http",
+          "url": "http://127.0.0.1:17323/api/waiting",
+          "timeout": 2
+        }
+      ],
+      "matcher": ""
     }
   ],
   "Stop": [
     {
-      "description": "Claude 响应结束时标记为空闲（兜底恢复）",
-      "command": "curl -s -X POST http://127.0.0.1:17323/api/green"
+      "hooks": [
+        {
+          "type": "http",
+          "url": "http://127.0.0.1:17323/api/done",
+          "timeout": 2
+        }
+      ],
+      "matcher": ""
+    }
+  ],
+  "SessionEnd": [
+    {
+      "hooks": [
+        {
+          "type": "http",
+          "url": "http://127.0.0.1:17323/api/done",
+          "timeout": 2
+        }
+      ],
+      "matcher": ""
     }
   ],
 
   "_notes": {
-    "可用端点": {
-      "/api/green": "设置为 idle(就绪) 状态",
-      "/api/working": "设置为 working(工作中) 状态,可附带 tool_name 和 tool_input",
-      "/api/waiting": "设置为 waiting(等待确认) 状态",
-      "/api/done": "设置为 idle(就绪) 状态"
+    "hook类型": "使用 Claude Code 内置的 'http' 类型 hook，无需 curl/PowerShell，纯配置即可",
+    "事件说明": {
+      "SessionStart": "会话启动 → 绿色就绪",
+      "UserPromptSubmit": "用户发送消息 → 蓝色工作中",
+      "PreToolUse": "工具开始执行 → 蓝色工作中",
+      "PostToolUse": "工具执行完毕 → 蓝色工作中（可能继续下一步）",
+      "PermissionRequest": "请求权限 → 红色等待确认",
+      "Stop": "响应结束 → 绿色就绪",
+      "SessionEnd": "会话结束 → 绿色就绪"
     },
-    "status_server_port": "独立 status_server.py 使用端口 17322; status_monitor.py 内嵌服务器使用 17323",
-    "curl_windows_note": "Windows 上请使用 PowerShell 的 Invoke-WebRequest 或安装 curl for Windows"
+    "端口": "status_monitor.py 内嵌服务器监听 17323；如用 status_server.py 独立版则改为 17322",
+    "Windows注意": "如使用独立 status_server.py，需先启动它再启动 Claude Code"
   }
 }
