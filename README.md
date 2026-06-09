@@ -1,41 +1,33 @@
 # Claude Code Monitor
 
-一个轻量级的 **Claude Code 状态浮动监控窗口** — 在屏幕右上角显示一个小型悬浮窗，实时展示 Claude Code CLI 的当前状态（就绪 / 思考中 / 工作中 / 等待确认）。
+屏幕右上角的 **AI 状态灯** — Claude Code 在干嘛，扫一眼就知道。
 
-A lightweight **floating status monitor** for Claude Code CLI — a small always-on-top window in the top-right corner of your screen showing what Claude is doing in real time.
+A tiny always-on-top widget that shows what Claude Code is doing — at a glance.
 
 ![demo](demo.gif)
 
 ---
 
-## 功能特性
+## 能做什么
 
-- 🟢 **实时状态指示** — 绿色空闲、橙色思考、蓝色工作中、红色等待 / 出错、灰色离线
-- 💓 **脉冲动画** — `thinking` / `working` / `waiting` 状态下圆点呼吸动画
-- 🔧 **工具图标** — 当前执行的工具类型以 emoji 显示（📖 读取、✏️ 写入、⚡ 命令、🔍 搜索…）
-- 📌 **置顶悬浮** — 始终位于所有窗口之上，可拖拽移动，右键退出
-- 🖥️ **跨平台** — Windows / macOS / Linux 均可运行（Windows 提供静默启动脚本）
+🟢 绿 · 就绪　🔵 蓝 · 工作中　🔴 红 · 等待确认
+
+圆点带呼吸动画，当前执行的工具类型用 emoji 标出来（⚡命令 📖读取 ✏️写入 🔍搜索），不用切回终端看进度。
+
+窗口置顶悬浮在右上角，拖到哪都行，右键关掉。
 
 ---
 
-## 与其他工具的差异
-
-类似的项目各有特色，这个的侧重点不太一样：
+## 和其他工具有什么不同
 
 | | 本项目 | AI Light | AgentTray | Code Light |
 |---|---|---|---|---|
-| 依赖 | Python 标准库，不用装别的 | 需要下载安装包 | 需要 Rust / Node 环境 | 需要 Rust 编译 |
-| 代码量 | 两个文件，一共 ~300 行 | 完整工程 | 完整工程 | 完整工程 |
+| 依赖 | Python 标准库 | 需安装包 | Rust / Node | Rust 编译 |
+| 代码量 | ~300 行 | 完整工程 | 完整工程 | 完整工程 |
 | 通信 | 本地 HTTP | 本地 HTTP | 本地 HTTP | 文件轮询 |
 | 数据上传 | 无 | 无 | 无 | 无 |
 
-**设计取舍：**
-
-- 不用编译、不用配环境，拖下来直接跑。写代码的人基本都有 Python
-- 代码少，花十分钟就能看完，不用担心藏了什么东西
-- Hook 用 Claude Code 自带的 `http` 类型，不用在系统里装 curl 或者写 shell 脚本
-
-如果你就想安安静静看个灯，这个够用了。
+不用编译配环境，Hook 用 Claude Code 自带的 `http` 类型，不用装 curl。代码十分钟能看完。
 
 ---
 
@@ -44,7 +36,7 @@ A lightweight **floating status monitor** for Claude Code CLI — a small always
 ```
 ┌──────────────────────────────────────────────────┐
 │              Claude Code CLI                       │
-│  (通过 hooks 发送 curl POST 更新状态)                │
+│  (通过内置 http hook 推送状态)                       │
 │       │                                            │
 │       ▼                                            │
 ├──────────────────────────────────────────────────┤
