@@ -16,14 +16,13 @@ A lightweight **floating status monitor** for Claude Code CLI — a small always
 |---|---|---|---|---|
 | 依赖 | Python 标准库，不用装别的 | 需要下载安装包 | 需要 Rust / Node 环境 | 需要 Rust 编译 |
 | 代码量 | 两个文件，一共 ~300 行 | 完整工程 | 完整工程 | 完整工程 |
-| 通信 | 127.0.0.1 本地 | 本地 HTTP | 本地 HTTP | 文件轮询 |
+| 通信 | 本地 HTTP | 本地 HTTP | 本地 HTTP | 文件轮询 |
 | 数据上传 | 无 | 无 | 无 | 无 |
 
 **我觉得顺手的地方：**
 
 - 不用编译、不用配环境，拖下来直接跑。写代码的人基本都有 Python
 - 代码少，花十分钟就能看完，不用担心藏了什么东西
-- 数据都在 `127.0.0.1` 打转，断网也不影响使用
 - Hook 用 Claude Code 自带的 `http` 类型，不用在系统里装 curl 或者写 shell 脚本
 
 如果你就想安安静静看个灯，这个够用了。
