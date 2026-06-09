@@ -4,7 +4,7 @@
 
 A lightweight **floating status monitor** for Claude Code CLI — a small always-on-top window in the top-right corner of your screen showing what Claude is doing in real time.
 
-![screenshot](https://img.shields.io/badge/status-working-blue) ![screenshot](https://img.shields.io/badge/status-idle-green)
+![demo](demo.gif)
 
 ---
 
